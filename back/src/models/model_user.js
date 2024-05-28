@@ -1,6 +1,18 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const bcrypt = require("bcrypt");
+const achievementsSchema = require("./model_achievements");
+
+const achievementSchema = new Schema(
+  {
+    level: {
+      type: Number,
+      required: true,
+      default: 0,
+    },
+  },
+  { _id: false }
+); // No necesitamos _id para subdocumentos
 
 const userSchema = new Schema(
   {
@@ -31,14 +43,7 @@ const userSchema = new Schema(
       default: [],
     },
     achievements: {
-      type: {
-        topic: {
-          type: Schema.Types.ObjectId,
-          ref: "Achieve",
-        },
-        level: Number,
-        default: {},
-      },
+      type: achievementsSchema,
     },
     score: {
       type: Number,

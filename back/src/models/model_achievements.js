@@ -1,21 +1,29 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-const Achievement = new Schema({
-  topic: {
-    type: String,
-    required: true,
-  },
-  level: {
-    type: Number,
-    required: true,
-  },
-  user: {
-    type: {
-      type: Schema.Types.ObjectId,
-      ref: "User",
+const achievementSchema = new Schema(
+  {
+    level: {
+      type: Number,
+      required: true,
+      default: 0,
     },
   },
-});
+  { _id: false }
+); // No necesitamos _id para subdocumentos
 
-module.exports = mongoose.model("Topic", Achievement);
+const achievementsSchema = new Schema(
+  {
+    idiomas: { type: achievementSchema, default: () => ({ level: 0 }) },
+    matematicas: { type: achievementSchema, default: () => ({ level: 0 }) },
+    ciencias: { type: achievementSchema, default: () => ({ level: 0 }) },
+    mundo: { type: achievementSchema, default: () => ({ level: 0 }) },
+    deportes: { type: achievementSchema, default: () => ({ level: 0 }) },
+    vida: { type: achievementSchema, default: () => ({ level: 0 }) },
+    nerd: { type: achievementSchema, default: () => ({ level: 0 }) },
+    artes: { type: achievementSchema, default: () => ({ level: 0 }) },
+  },
+  { _id: false }
+); // No necesitamos _id para subdocumentos
+
+module.exports = achievementsSchema;

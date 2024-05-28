@@ -5,6 +5,8 @@ const User = require("../models/model_user");
 
 // const Achievement = require("../models/model_achievements");
 //HOY - CRUD user
+//El usuario.sandiasFavoritas ta mal -> no puede ser un array de strings
+//usuario.achievements ta mal -> debe de regresar un objeto con topic y nivel
 //crear usuario
 router.post("/", async (req, res) => {
   try {
