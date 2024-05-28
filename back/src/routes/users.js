@@ -25,7 +25,7 @@ router.post("/", async (req, res) => {
     console.log(data);
   } catch (err) {
     console.error(err);
-    res.status(400).send({ error: err, msg: "Could not create user!" });
+    res.status(400).send({ error: err, msg: err.message });
   }
 });
 

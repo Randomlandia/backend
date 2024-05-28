@@ -2,17 +2,7 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const bcrypt = require("bcrypt");
 const achievementsSchema = require("./model_achievements");
-
-const achievementSchema = new Schema(
-  {
-    level: {
-      type: Number,
-      required: true,
-      default: 0,
-    },
-  },
-  { _id: false }
-); // No necesitamos _id para subdocumentos
+const Sandia = require("./model_sandia");
 
 const userSchema = new Schema(
   {
@@ -39,7 +29,7 @@ const userSchema = new Schema(
       default: 0,
     },
     sandiasFavoritas: {
-      type: [],
+      type: [{ type: Schema.Types.ObjectId, ref: "Sandia" }],
       default: [],
     },
     achievements: {
@@ -67,5 +57,27 @@ const userSchema = new Schema(
     },
   }
 );
+
+// Middleware para validar las IDs de las sandías favoritas antes de guardar el usuario
+userSchema.pre("save", async function (next) {
+  if (this.sandiasFavoritas && this.sandiasFavoritas.length > 0) {
+    const sandiasExistentes = await Sandia.find({
+      _id: { $in: this.sandiasFavoritas },
+    }).select("_id");
+    const sandiaIds = sandiasExistentes.map((sandia) => sandia._id.toString());
+    const idsValidos = this.sandiasFavoritas.every((id) =>
+      sandiaIds.includes(id.toString())
+    );
+
+    if (!idsValidos) {
+      const error = new Error("Algunas sandías no existen en la base de datos");
+      error.status = 400;
+      return next(error);
+    }
+  }
+  next();
+});
+
+module.exports = mongoose.model("User", userSchema);
 
 module.exports = mongoose.model("User", userSchema);
