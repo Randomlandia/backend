@@ -4,7 +4,7 @@ const Sandia = require("../models/model_sandia");
 const User = require("../models/model_user");
 
 // const Achievement = require("../models/model_achievements");
-
+//HOY - CRUD user
 //crear usuario
 router.post("/", async (req, res) => {
   try {
@@ -28,6 +28,15 @@ router.post("/", async (req, res) => {
 });
 
 //ver todos los usuarios
+router.get("/", async (req, res) => {
+  try {
+    const users = await User.find();
+    res.send(users);
+  } catch (error) {
+    console.error(err);
+    res.status(400).send({ error: err, msg: "Could not get users!" });
+  }
+});
 
 //ver usuarios por ID
 
