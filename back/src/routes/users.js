@@ -4,10 +4,8 @@ const Sandia = require("../models/model_sandia");
 const User = require("../models/model_user");
 
 // const Achievement = require("../models/model_achievements");
-//HOY - CRUD user
-//El usuario.sandiasFavoritas ta mal -> no puede ser un array de strings
-//usuario.achievements ta mal -> debe de regresar un objeto con topic y nivel
-//crear usuario
+//HOY - Update, Delete user
+
 router.post("/", async (req, res) => {
   try {
     let newUser = req.body;
@@ -36,7 +34,7 @@ router.get("/", async (req, res) => {
     res.send(users);
   } catch (error) {
     console.error(err);
-    res.status(400).send({ error: err, msg: "Could not get users!" });
+    res.status(400).send({ error: err, msg: err.message });
   }
 });
 
@@ -44,6 +42,22 @@ router.get("/", async (req, res) => {
 
 //actualizar usuario
 
-//borrar usuario
+//borrar usuario por id
+router.delete("/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const user = await User.findByIdAndDelete(id);
+
+    if (!user) {
+      return res.status(404).send({ msg: "User not found" });
+    } else {
+      console.log(`deleted user sucesfully:`, user);
+      res.status(200).send({ msg: "deleted user sucesfully" });
+    }
+  } catch (err) {
+    res.status(500).send({ error: err, msg: err.message });
+  }
+});
 //CRUD - Create Read Update Delete
 module.exports = router;
