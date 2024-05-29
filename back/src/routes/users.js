@@ -38,9 +38,19 @@ router.get("/", async (req, res) => {
   }
 });
 
-//ver usuarios por ID
-
-//actualizar usuario
+// Get user by ID
+router.get("/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).send({ msg: "User not found" });
+    }
+    res.send(user);
+  } catch (err) {
+    res.status(400).send({ error: err, msg: err.message });
+  }
+});
 
 //borrar usuario por id
 router.delete("/:id", async (req, res) => {
@@ -57,6 +67,27 @@ router.delete("/:id", async (req, res) => {
     }
   } catch (err) {
     res.status(500).send({ error: err, msg: err.message });
+  }
+});
+
+// Update user by ID
+router.put("/:id", async (req, res) => {
+  const { id } = req.params;
+  const updates = req.body;
+  try {
+    if (updates.password) {
+      updates.password = await User.encryptPassword(updates.password);
+    }
+    const user = await User.findByIdAndUpdate(id, updates, { new: true });
+
+    if (!user) {
+      return res.status(404).send({ msg: "User not found" });
+    }
+    console.log("Updated user successfully:", user);
+    res.status(200).send(user);
+  } catch (err) {
+    console.error(err);
+    res.status(400).send({ error: err, msg: err.message });
   }
 });
 //CRUD - Create Read Update Delete
