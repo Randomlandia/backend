@@ -1,10 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const Sandia = require("../models/model_sandia");
 const User = require("../models/model_user");
-
-// const Achievement = require("../models/model_achievements");
-//HOY - Update, Delete user
 
 router.post("/", async (req, res) => {
   try {
