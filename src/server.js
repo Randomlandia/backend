@@ -1,14 +1,14 @@
 // definicion del servidor
 //aquí importamos express y ponemos qué rutas existen.
 const express = require("express");
-// const userRouter = require("./routes/user.router");
+const userRouter = require("./routes/user.router");
 
 const server = express();
 
 //middlewares
 server.use(express.json());
 
-// server.use("/users", userRouter);
+server.use("/users", userRouter);
 
 server.get("/", (req, res) => {
   res.json({

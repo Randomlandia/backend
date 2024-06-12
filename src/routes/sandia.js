@@ -1,24 +1,24 @@
-const express = require('express')
-const router = express.Router()
-const Sandia = require('../models/model_sandia')
-const Topic = require('../models/model_topics')
+const express = require("express");
+const router = express.Router();
+const Sandia = require("../models/sandia.model");
+const Topic = require("../models/topics.model");
 
-router.get('/', async (req, res) => {
+router.get("/", async (req, res) => {
   try {
-    const sandias = await Sandia.find().populate('topic')
+    const sandias = await Sandia.find().populate("topic");
     res.status(200).send({
-      message: 'All the data',
-      data: sandias
-    })
+      message: "All the data",
+      data: sandias,
+    });
   } catch (error) {
-    console.log(error)
+    console.log(error);
     res.status(400).send({
-      message: 'Error: Please review with your SystemAdministrator',
-      data: null
-    })
+      message: "Error: Please review with your SystemAdministrator",
+      data: null,
+    });
   }
-})
-router.post('/newtopic', async (req, res) => {
+});
+router.post("/newtopic", async (req, res) => {
   try {
     const { name } = req.body;
     let topic = await Topic.findOne({ name: name });
@@ -32,17 +32,19 @@ router.post('/newtopic', async (req, res) => {
     }
   } catch (error) {
     console.log(error);
-    res.status(500).send({ message: 'Internal Server Error' });
+    res.status(500).send({ message: "Internal Server Error" });
   }
 });
 
-router.post('/newsandia', async (req, res) => {
+router.post("/newsandia", async (req, res) => {
   try {
     const { topicName, content, question, answer, reference } = req.body;
     let topic = await Topic.findOne({ name: topicName });
 
     if (!topic) {
-      return res.status(404).send({ message: `Topic "${topicName}" not found` });
+      return res
+        .status(404)
+        .send({ message: `Topic "${topicName}" not found` });
     }
 
     const newSandia = new Sandia({
@@ -50,7 +52,7 @@ router.post('/newsandia', async (req, res) => {
       content,
       question,
       answer,
-      reference
+      reference,
     });
 
     await newSandia.save();
@@ -59,12 +61,12 @@ router.post('/newsandia', async (req, res) => {
     await topic.save();
 
     res.status(201).send({
-      message: `New sandia created under topic: ${topicName}`
+      message: `New sandia created under topic: ${topicName}`,
     });
   } catch (error) {
     console.log(error);
-    res.status(500).send({ message: 'Internal Server Error' });
+    res.status(500).send({ message: "Internal Server Error" });
   }
 });
 
-module.exports = router
+module.exports = router;
