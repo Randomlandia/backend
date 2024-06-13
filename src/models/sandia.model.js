@@ -7,10 +7,12 @@ const sandiaSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "Topic",
       required: true,
+      default: "",
     },
     content: {
       type: String,
       required: true,
+      unique: true,
     },
     question: {
       type: String,
@@ -29,5 +31,8 @@ const sandiaSchema = new Schema(
     timestamps: true,
   }
 );
+
+// Asegúrate de que el índice único se cree en la base de datos
+sandiaSchema.index({ content: 1 }, { unique: true });
 
 module.exports = mongoose.model("Sandia", sandiaSchema);
