@@ -30,7 +30,6 @@ router.post("/", async (req, res) => {
 
     const topicId = newSandia.topic.toString();
     const topic = await TopicUseCase.getById(topicId);
-    console.log(`He aquí el topic: ${topic}`);
 
     res.json({
       success: true,
