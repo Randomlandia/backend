@@ -27,10 +27,10 @@ router.get("/", async (req, res) => {
 router.post("/", async (req, res) => {
   try {
     const newSandia = await sandiaUseCase.create(req.body);
-    console.log({ newSandia });
 
     const topicId = newSandia.topic.toString();
     const topic = await TopicUseCase.getById(topicId);
+    console.log(`He aquí el topic: ${topic}`);
 
     res.json({
       success: true,

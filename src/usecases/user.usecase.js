@@ -1,5 +1,4 @@
 const User = require("../models/user.model");
-console.log({ User });
 
 //create user ♥
 async function create(newUser) {

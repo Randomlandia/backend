@@ -6,8 +6,14 @@ async function getAll() {
   return sandias;
 }
 
-async function create({ topicName, content, question, answer, reference }) {
-  let topic = await Topic.findOne({ topicName });
+async function create({
+  topic: topicName,
+  content,
+  question,
+  answer,
+  reference,
+}) {
+  let topic = await Topic.findOne({ name: topicName });
 
   if (!topic) {
     throw new Error(`Topic "${topicName}" not found`);

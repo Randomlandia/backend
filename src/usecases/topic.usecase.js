@@ -1,12 +1,12 @@
 const Topic = require("../models/topics.model");
 
 async function create(name) {
-  let topic = await Topic.findOne({ name });
+  let newTopic = await Topic.findOne({ name });
 
-  if (!topic) {
-    topic = new Topic({ name, data: [] });
-    await topic.save();
-    return topic;
+  if (!newTopic) {
+    newTopic = new Topic({ name, data: [] });
+    await newTopic.save();
+    return newTopic;
   } else {
     throw new Error(`Topic "${name}" already exists`);
   }
