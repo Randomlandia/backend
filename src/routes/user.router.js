@@ -41,25 +41,26 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-router.get("/email/:email", async (req, res) => {
-  const { email } = req.params;
-  try {
-    const user = await userUseCase.getByEmail(email);
-    res.json({
-      success: true,
-      message: "User email found",
-      data: {
-        users: user,
-      },
-    });
-  } catch (error) {
-    res.status(error.status || 500);
-    res.json({
-      success: false,
-      message: error.message,
-    });
-  }
-});
+// router.get("/email", async (req, res) => {
+//   const { email } = req.query;
+//   console.log(email);
+//   try {
+//     const user = await userUseCase.getByEmail(email);
+//     res.json({
+//       success: true,
+//       message: "User email found",
+//       data: {
+//         users: user,
+//       },
+//     });
+//   } catch (error) {
+//     res.status(error.status || 500);
+//     res.json({
+//       success: false,
+//       message: error.message,
+//     });
+//   }
+// });
 
 router.post("/", async (req, res) => {
   try {
@@ -116,5 +117,44 @@ router.put("/:id", async (req, res) => {
     });
   }
 });
+
+router.post("/", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const token = await userUseCase.login(email, password);
+    res.status(200).json({
+      success: true,
+      message: "User successfuly logged in",
+      data: {
+        token: token,
+      },
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: "Incorrect email or password",
+    });
+  }
+});
+
+// router.post("/login", async (req, res) => {
+//   try {
+//     const user = ({ email, password } = req.body);
+//     // db : body
+//     const users = await User.findOne({ email: email });
+
+//     if (!user || !(await User.isValidPassword(password, users.password))) {
+//       res.status(401).send({ message: "Invalid email or password" });
+//     } else {
+//       const token = await User.createToken({
+//         _id: user._id,
+//         first_name: user.first_name,
+//       });
+//       res.status(201).send({ message: "Login Success", data: token });
+//     }
+//   } catch (error) {
+//     res.status(400).send({ message: error });
+//   }
+// });
 
 module.exports = router;
