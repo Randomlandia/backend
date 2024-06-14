@@ -21,24 +21,3 @@ router.post("/", async (req, res) => {
 });
 
 module.exports = router;
-
-/* 
-router.post('/newtopic', async (req, res) => {
-  try {
-    const { name } = req.body;
-    let topic = await Topic.findOne({ name: name });
-
-    if (!topic) {
-      topic = new Topic({ name: name, data: [] });
-      await topic.save();
-      res.status(201).send({ message: `New topic created: ${name}` });
-    } else {
-      res.status(400).send({ message: `Topic "${name}" already exists` });
-    }
-  } catch (error) {
-    console.log(error);
-    res.status(500).send({ message: 'Internal Server Error' });
-  }
-});
-
-*/

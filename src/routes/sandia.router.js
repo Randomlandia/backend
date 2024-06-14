@@ -1,7 +1,5 @@
 const express = require("express");
 const router = express.Router();
-const Sandia = require("../models/sandia.model");
-const Topic = require("../models/topics.model");
 const sandiaUseCase = require("../usecases/sandia.usecase");
 const TopicUseCase = require("../usecases/topic.usecase");
 
@@ -13,6 +11,47 @@ router.get("/", async (req, res) => {
       message: "All sandias",
       data: {
         sandias: allSandias,
+      },
+    });
+  } catch (error) {
+    res.status(error.status || 500);
+    res.json({
+      success: false,
+      message: error.message,
+    });
+  }
+});
+
+router.get("/:id", async (req, res) => {
+  try {
+    const sandia = await sandiaUseCase.getById(req.params.id);
+
+    res.json({
+      success: true,
+      message: `sandia found by id`,
+      data: {
+        sandia: sandia,
+      },
+    });
+  } catch (error) {
+    res.status(error.status || 500);
+    res.json({
+      success: false,
+      message: error.message,
+    });
+  }
+});
+
+router.delete("/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deletedSandia = await sandiaUseCase.deleteById(id);
+
+    res.json({
+      success: true,
+      message: `Sandia deleted`,
+      data: {
+        sandia: deletedSandia,
       },
     });
   } catch (error) {
@@ -36,6 +75,28 @@ router.post("/", async (req, res) => {
       message: `New sandia created under topic: ${topic.name}`,
       data: {
         sandia: newSandia,
+      },
+    });
+  } catch (error) {
+    res.status(error.status || 500);
+    res.json({
+      success: false,
+      message: error.message,
+    });
+  }
+});
+
+router.put("/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updates = req.body;
+    const updatedSandia = await sandiaUseCase.update(id, updates);
+
+    res.json({
+      success: true,
+      message: `sandia successfuly updated`,
+      data: {
+        sandia: updatedSandia,
       },
     });
   } catch (error) {
