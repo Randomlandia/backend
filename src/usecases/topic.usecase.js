@@ -17,4 +17,21 @@ async function getById(id) {
   return topic;
 }
 
-module.exports = { getById, create };
+async function deleteById(id) {
+  const deletedTopic = await Topic.findByIdAndDelete(id);
+  return deletedTopic;
+}
+
+function update(id, updates) {
+  const updatedTopic = Topic.findByIdAndUpdate(id, updates, {
+    returnOriginal: false,
+  });
+  return updatedTopic;
+}
+
+async function getAll() {
+  const topics = await Topic.find();
+  return topics;
+}
+
+module.exports = { getById, create, deleteById, update, getAll };

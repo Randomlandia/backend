@@ -8,7 +8,7 @@ async function getAll() {
   return sandias;
 }
 
-//por traer por id ♥ listo
+// traer por id ♥ listo
 async function getById(id) {
   const sandia = await Sandia.findById(id).populate("topic");
   const destructuredSandia = {

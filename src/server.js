@@ -12,7 +12,7 @@ server.use(express.json());
 
 server.use("/users", userRouter);
 server.use("/sandias", sandiaRouter);
-server.use("/topic", topicRouter);
+server.use("/topics", topicRouter);
 
 server.get("/", (req, res) => {
   res.json({

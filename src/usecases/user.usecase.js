@@ -25,6 +25,7 @@ function getAll() {
 //getById ♥
 async function getById(id) {
   const user = await User.findById(id);
+
   if (!user) {
     throw new Error("User not found");
   }
