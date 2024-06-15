@@ -118,7 +118,7 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-router.post("/", async (req, res) => {
+router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
     const token = await userUseCase.login(email, password);
@@ -132,7 +132,7 @@ router.post("/", async (req, res) => {
   } catch (error) {
     res.status(400).json({
       success: false,
-      message: "Incorrect email or password",
+      message: error.message || "Incorrect email or password",
     });
   }
 });

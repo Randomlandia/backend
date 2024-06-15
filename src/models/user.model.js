@@ -44,18 +44,6 @@ const userSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-    statics: {
-      encryptPassword: async (password) => {
-        const salt = await bcrypt.genSalt(15); // determina cuántas veces se va a reencriptar la contraseña
-        return await bcrypt.hash(password, salt);
-      },
-      isValidPassword: async (password, hash) => {
-        return await bcrypt.compare(password, hash);
-      },
-      createToken: async (payload) => {
-        return jwt.sign(payload, process.env.JWT_SIGN, { expiresIn: "24h" });
-      },
-    },
   }
 );
 

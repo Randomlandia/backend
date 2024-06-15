@@ -1,4 +1,6 @@
 const User = require("../models/user.model");
+const encryption = require("../lib/encryption");
+const jwt = require("../lib/jwt");
 
 //create user ♥ liisto
 async function create(newUser) {
@@ -7,7 +9,8 @@ async function create(newUser) {
     if (isDuplicateUser) {
       throw new Error("User already exists");
     }
-    newUser.password = await User.encryptPassword(newUser.password);
+    const encryptedPassword = encryption.hash(newUser.password);
+    newUser.password = encryptedPassword;
     const data = await User.create(newUser);
     await data.save();
     return data;
@@ -61,17 +64,20 @@ async function update(id, updates) {
 }
 
 async function login(email, password) {
-  const user = await User.findOne({ email: email });
+  const user = await User.findOne({ email });
+  console.log(email, password, user.password);
 
-  if (!user || !(await User.isValidPassword(password, users.password))) {
-    throw new Error("Invalid email or password");
-  } else {
-    const token = await User.createToken({
-      _id: user._id,
-      email: user.email,
-    });
-    return token;
+  if (!user) {
+    throw createError(401, "invalid credentials");
   }
+
+  const isPasswordVerified = encryption.compare(password, user.password);
+
+  if (!isPasswordVerified) {
+    throw createError(401, "invalid credentials");
+  }
+
+  return jwt.sign({ user: user._id, email: user.email });
 }
 
 // async function getByEmail(email) {
