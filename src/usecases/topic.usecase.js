@@ -34,13 +34,13 @@ async function deleteById(id) {
 }
 //actualizar
 
-function update(id, updates) {
+async function update(id, updates) {
   const updatedTopic = Topic.findByIdAndUpdate(id, updates, {
     returnOriginal: false,
   });
 
   if (!updatedTopic) {
-    throw createError(404, `Update error: topic not found`);
+    throw createError(404, `Update error: topic not updated`);
   }
   return updatedTopic;
 }
