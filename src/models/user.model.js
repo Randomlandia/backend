@@ -23,6 +23,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: false,
       trim: true,
+      match: [/^[A-Za-z]+$/, "Character not valid"],
     },
     avatar: {
       type: Number,
