@@ -43,7 +43,7 @@ async function deleteById(id) {
     throw new Error("User not found");
   }
 
-  console.log(`deleted user sucesfully:`, user);
+  console.log(`deleted user sucesfully:`, user); //refactor with http errors
   return user;
 }
 
@@ -59,13 +59,12 @@ async function update(id, updates) {
     throw new Error("User not found");
   }
 
-  console.log("Updated user successfully:", user);
+  console.log("Updated user successfully:", user); //refactor with http errors
   return user;
 }
 
 async function login(email, password) {
   const user = await User.findOne({ email });
-  console.log(email, password, user.password);
 
   if (!user) {
     throw createError(401, "invalid credentials");

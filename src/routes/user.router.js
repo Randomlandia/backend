@@ -43,7 +43,6 @@ router.get("/:id", async (req, res) => {
 
 // router.get("/email", async (req, res) => {
 //   const { email } = req.query;
-//   console.log(email);
 //   try {
 //     const user = await userUseCase.getByEmail(email);
 //     res.json({

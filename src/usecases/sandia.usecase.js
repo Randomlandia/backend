@@ -20,7 +20,6 @@ async function getById(id) {
     reference: sandia.reference,
   };
 
-  console.log(id, destructuredSandia);
   return destructuredSandia;
 }
 
