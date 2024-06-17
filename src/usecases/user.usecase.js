@@ -1,11 +1,12 @@
 const User = require("../models/user.model");
 const encryption = require("../lib/encryption");
 const jwt = require("../lib/jwt");
+const createError = require("http-errors");
 
-//create user ♥ liisto
+//create user ♥ listo
 async function create(newUser) {
   try {
-    const isDuplicateUser = await User.findOne({ email: newUser.email }); //busco si el usuario ya existe
+    const isDuplicateUser = await User.findOne({ email: newUser.email });
     if (isDuplicateUser) {
       throw new Error("User already exists");
     }
@@ -62,6 +63,8 @@ async function update(id, updates) {
   console.log("Updated user successfully:", user); //refactor with http errors
   return user;
 }
+
+//login ♥ listo
 
 async function login(email, password) {
   const user = await User.findOne({ email });
