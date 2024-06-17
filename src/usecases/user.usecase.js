@@ -23,6 +23,9 @@ async function create(newUser) {
 //get all ♥ listo
 function getAll() {
   const users = User.find();
+  if (!users) {
+    throw createError(404, "no users found");
+  }
   return users;
 }
 
@@ -31,7 +34,7 @@ async function getById(id) {
   const user = await User.findById(id);
 
   if (!user) {
-    throw new Error("User not found");
+    throw createError(404, "no sandia found");
   }
   return user;
 }
@@ -41,7 +44,7 @@ async function deleteById(id) {
   const user = await User.findByIdAndDelete(id);
 
   if (!user) {
-    throw new Error("User not found");
+    throw createError(404, "delete error: no user found");
   }
 
   console.log(`deleted user sucesfully:`, user); //refactor with http errors
@@ -57,9 +60,8 @@ async function update(id, updates) {
   const user = await User.findByIdAndUpdate(id, updates, { new: true });
 
   if (!user) {
-    throw new Error("User not found");
+    throw createError(404, `Update error: sandia not found`);
   }
-
   console.log("Updated user successfully:", user); //refactor with http errors
   return user;
 }
