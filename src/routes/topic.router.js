@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const topicUseCase = require("../usecases/topic.usecase");
 
-// todas listo♥
+// todas ♥ listo ♥
 router.get("/", async (req, res) => {
   try {
     const topics = await topicUseCase.getAll();
@@ -23,7 +23,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-//crear listo ♥
+//crear ♥ listo ♥
 
 router.post("/", async (req, res) => {
   try {
@@ -45,7 +45,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-// borrar listo ♥
+// borrar ♥ listo ♥
 
 router.delete("/:id", async (req, res) => {
   try {
@@ -67,7 +67,7 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
-// update listo ♥
+// update ♥ listo ♥
 router.put("/:id", async (req, res) => {
   try {
     const { id } = req.params;
@@ -90,6 +90,7 @@ router.put("/:id", async (req, res) => {
   }
 });
 
+//buscar por id ♥ listo ♥
 router.get("/:id", async (req, res) => {
   try {
     const { id } = req.params;
