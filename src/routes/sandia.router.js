@@ -125,7 +125,7 @@ router.get("/topic/:topic", async (req, res) => {
       success: true,
       message: `Found sandias by topic ${topic}`,
       data: {
-        sandia: sandiasByTopic,
+        sandias: sandiasByTopic,
       },
     });
   } catch (error) {
