@@ -115,4 +115,26 @@ router.put("/:id", async (req, res) => {
   }
 });
 
+//getSandiasByTopic
+router.get("/topic/:topic", async (req, res) => {
+  try {
+    const { topic } = req.params;
+    const sandiasByTopic = await sandiaUseCase.getByTopic(topic);
+
+    res.json({
+      success: true,
+      message: `Found sandias by topic ${topic}`,
+      data: {
+        sandia: sandiasByTopic,
+      },
+    });
+  } catch (error) {
+    res.status(error.status || 500);
+    res.json({
+      success: false,
+      message: error.message,
+    });
+  }
+});
+
 module.exports = router;

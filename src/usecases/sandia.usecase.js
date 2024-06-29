@@ -1,3 +1,4 @@
+const { sandiaTopicMap } = require("../lib/constants/topics");
 const Sandia = require("../models/sandia.model");
 const Topic = require("../models/topics.model");
 const ObjectId = require("mongodb").ObjectId;
@@ -89,4 +90,17 @@ function update(id, updates) {
   return updatedSandia;
 }
 
-module.exports = { getAll, create, getById, deleteById, update };
+// traer todas las que tengan el mismo topic
+async function getByTopic(topic) {
+  const topicId = sandiaTopicMap[topic];
+
+  const sandias = await Sandia.find({ topic: topicId }).populate("topic");
+
+  if (!sandias) {
+    throw createError(404, "no sandias found");
+  }
+
+  return sandias;
+}
+
+module.exports = { getAll, create, getById, deleteById, update, getByTopic };
