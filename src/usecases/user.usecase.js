@@ -81,7 +81,10 @@ async function login(email, password) {
     throw createError(401, "invalid credentials");
   }
 
-  return jwt.sign({ user: user._id, email: user.email });
+  const token = jwt.sign({ user: user._id, email: user.email });
+  const userLoginData = { token, userID: user._id };
+
+  return userLoginData;
 }
 
 // async function getByEmail(email) {
