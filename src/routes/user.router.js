@@ -104,7 +104,7 @@ router.put("/:id", async (req, res) => {
     const user = await userUseCase.update(userID, updates);
     res.status(200).json({
       success: true,
-      message: "User deleted",
+      message: "User update",
       data: {
         user: user,
       },
@@ -125,7 +125,8 @@ router.post("/login", async (req, res) => {
       success: true,
       message: "User successfuly logged in",
       data: {
-        token: token,
+        token: token
+        
       },
     });
   } catch (error) {
