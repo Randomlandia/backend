@@ -36,9 +36,15 @@ function getAll() {
 async function getById(id) {
   try {
     const user = await User.findById(id)
-      .populate("sandiasFavoritas")
-      .populate("sandiasVistas")
-      .populate("achievements")
+    .populate({
+      path: "sandiasFavoritas",
+      populate: { path: "topic" }
+    })
+    .populate({
+      path: "sandiasVistas",
+      populate: { path: "topic" }
+    })
+    .populate("achievements")
 
     if (!user) {
       throw createError(404, "User not found")
