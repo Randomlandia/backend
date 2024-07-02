@@ -41,6 +41,11 @@ const userSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    sandiasVistas: {
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Sandia" }],
+      default: [],
+    },
+
     //TODO: encriptado de contraseña
   },
   {
