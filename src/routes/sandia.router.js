@@ -3,6 +3,8 @@ const router = express.Router();
 const sandiaUseCase = require("../usecases/sandia.usecase");
 const TopicUseCase = require("../usecases/topic.usecase");
 
+// traer todas ♥ listo
+
 router.get("/", async (req, res) => {
   try {
     const allSandias = await sandiaUseCase.getAll();
@@ -21,6 +23,8 @@ router.get("/", async (req, res) => {
     });
   }
 });
+
+//traer por id ♥ listo ♥
 
 router.get("/:id", async (req, res) => {
   try {
@@ -42,6 +46,7 @@ router.get("/:id", async (req, res) => {
   }
 });
 
+// borrar ♥ listo ♥
 router.delete("/:id", async (req, res) => {
   try {
     const { id } = req.params;
@@ -63,6 +68,7 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
+//crear sandia ♥ listo ♥
 router.post("/", async (req, res) => {
   try {
     const newSandia = await sandiaUseCase.create(req.body);
@@ -86,6 +92,7 @@ router.post("/", async (req, res) => {
   }
 });
 
+// modificar por id ♥ listo ♥
 router.put("/:id", async (req, res) => {
   try {
     const { id } = req.params;
@@ -97,6 +104,28 @@ router.put("/:id", async (req, res) => {
       message: `sandia successfuly updated`,
       data: {
         sandia: updatedSandia,
+      },
+    });
+  } catch (error) {
+    res.status(error.status || 500);
+    res.json({
+      success: false,
+      message: error.message,
+    });
+  }
+});
+
+//getSandiasByTopic
+router.get("/topic/:topic", async (req, res) => {
+  try {
+    const { topic } = req.params;
+    const sandiasByTopic = await sandiaUseCase.getByTopic(topic);
+
+    res.json({
+      success: true,
+      message: `Found sandias by topic ${topic}`,
+      data: {
+        sandias: sandiasByTopic,
       },
     });
   } catch (error) {

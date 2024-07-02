@@ -1,11 +1,12 @@
 const User = require("../models/user.model");
 const encryption = require("../lib/encryption");
 const jwt = require("../lib/jwt");
+const createError = require("http-errors");
 
-//create user ♥ liisto
+//create user ♥ listo
 async function create(newUser) {
   try {
-    const isDuplicateUser = await User.findOne({ email: newUser.email }); //busco si el usuario ya existe
+    const isDuplicateUser = await User.findOne({ email: newUser.email });
     if (isDuplicateUser) {
       throw new Error("User already exists");
     }
@@ -13,7 +14,10 @@ async function create(newUser) {
     newUser.password = encryptedPassword;
     const data = await User.create(newUser);
     await data.save();
-    return data;
+
+    const token = jwt.sign({ email: newUser.email });
+    const { password, ...userWithoutPassword } = newUser;
+    return { userWithoutPassword, token };
   } catch (err) {
     throw new Error(err.message);
   }
@@ -22,6 +26,9 @@ async function create(newUser) {
 //get all ♥ listo
 function getAll() {
   const users = User.find();
+  if (!users) {
+    throw createError(404, "no users found");
+  }
   return users;
 }
 
@@ -30,7 +37,7 @@ async function getById(id) {
   const user = await User.findById(id);
 
   if (!user) {
-    throw new Error("User not found");
+    throw createError(404, "no sandia found");
   }
   return user;
 }
@@ -40,7 +47,7 @@ async function deleteById(id) {
   const user = await User.findByIdAndDelete(id);
 
   if (!user) {
-    throw new Error("User not found");
+    throw createError(404, "delete error: no user found");
   }
 
   console.log(`deleted user sucesfully:`, user); //refactor with http errors
@@ -56,12 +63,13 @@ async function update(id, updates) {
   const user = await User.findByIdAndUpdate(id, updates, { new: true });
 
   if (!user) {
-    throw new Error("User not found");
+    throw createError(404, `Update error: sandia not found`);
   }
-
   console.log("Updated user successfully:", user); //refactor with http errors
   return user;
 }
+
+//login ♥ listo
 
 async function login(email, password) {
   const user = await User.findOne({ email });
@@ -76,7 +84,10 @@ async function login(email, password) {
     throw createError(401, "invalid credentials");
   }
 
-  return jwt.sign({ user: user._id, email: user.email });
+  const token = jwt.sign({ user: user._id, email: user.email });
+  const userLoginData = { token, userID: user._id };
+
+  return userLoginData;
 }
 
 // async function getByEmail(email) {
