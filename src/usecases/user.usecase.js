@@ -1,93 +1,100 @@
-const User = require("../models/user.model");
-const encryption = require("../lib/encryption");
-const jwt = require("../lib/jwt");
-const createError = require("http-errors");
+const User = require("../models/user.model")
+const encryption = require("../lib/encryption")
+const jwt = require("../lib/jwt")
+const createError = require("http-errors")
 
 //create user ♥ listo
 async function create(newUser) {
   try {
-    const isDuplicateUser = await User.findOne({ email: newUser.email });
+    const isDuplicateUser = await User.findOne({ email: newUser.email })
     if (isDuplicateUser) {
-      throw new Error("User already exists");
+      throw new Error("User already exists")
     }
-    const encryptedPassword = encryption.hash(newUser.password);
-    newUser.password = encryptedPassword;
-    const data = await User.create(newUser);
-    await data.save();
+    const encryptedPassword = encryption.hash(newUser.password)
+    newUser.password = encryptedPassword
+    const data = await User.create(newUser)
+    await data.save()
 
-    const token = jwt.sign({ email: newUser.email });
-    const { password, ...userWithoutPassword } = newUser;
-    return { userWithoutPassword, token };
+    const token = jwt.sign({ email: newUser.email })
+    const { password, ...userWithoutPassword } = newUser
+    return { userWithoutPassword, token }
   } catch (err) {
-    throw new Error(err.message);
+    throw new Error(err.message)
   }
 }
 
 //get all ♥ listo
 function getAll() {
-  const users = User.find();
+  const users = User.find()
   if (!users) {
-    throw createError(404, "no users found");
+    throw createError(404, "no users found")
   }
-  return users;
+  return users
 }
 
 //getById ♥ listo
 async function getById(id) {
-  const user = await User.findById(id);
+  try {
+    const user = await User.findById(id)
+      .populate("sandiasFavoritas")
+      .populate("sandiasVistas")
+      .populate("achievements")
 
-  if (!user) {
-    throw createError(404, "no sandia found");
+    if (!user) {
+      throw createError(404, "User not found")
+    }
+    return user
+  } catch (error) {
+    throw new Error(error.message)
   }
-  return user;
 }
 
 //borrar ♥ listo
 async function deleteById(id) {
-  const user = await User.findByIdAndDelete(id);
+  const user = await User.findByIdAndDelete(id)
 
   if (!user) {
-    throw createError(404, "delete error: no user found");
+    throw createError(404, "delete error: no user found")
   }
 
-  console.log(`deleted user sucesfully:`, user); //refactor with http errors
-  return user;
+  console.log(`deleted user sucesfully:`, user) //refactor with http errors
+  return user
 }
 
 //update ♥ listo
 async function update(id, updates) {
   if (updates.password) {
-    updates.password = await User.encryptPassword(updates.password);
+    updates.password = await User.encryptPassword(updates.password)
   }
 
-  const user = await User.findByIdAndUpdate(id, updates, { new: true });
+  const user = await User.findByIdAndUpdate(id, updates, { new: true })
 
   if (!user) {
-    throw createError(404, `Update error: sandia not found`);
+    throw createError(404, `Update error: sandia not found`)
   }
-  console.log("Updated user successfully:", user); //refactor with http errors
-  return user;
+  console.log("Updated user successfully:", user) //refactor with http errors
+  return user
 }
 
 //login ♥ listo
 
 async function login(email, password) {
-  const user = await User.findOne({ email });
+  const user = await User.findOne({ email })
 
   if (!user) {
-    throw createError(401, "invalid credentials");
+    throw createError(401, "invalid credentials")
   }
 
-  const isPasswordVerified = encryption.compare(password, user.password);
+  const isPasswordVerified = encryption.compare(password, user.password)
 
   if (!isPasswordVerified) {
-    throw createError(401, "invalid credentials");
+    throw createError(401, "invalid credentials")
   }
 
-  const token = jwt.sign({ user: user._id, email: user.email });
-  const userLoginData = { token, userID: user._id };
+  const token = jwt.sign({ user: user._id, email: user.email })
+  const userLoginData = { token, userID: user._id }
 
-  return userLoginData;
+  return userLoginData
 }
 
 // async function getByEmail(email) {
@@ -102,4 +109,4 @@ async function login(email, password) {
 // }
 
 //CRUD - Create Read Update Delete
-module.exports = { create, getAll, getById, deleteById, update, login };
+module.exports = { create, getAll, getById, deleteById, update, login }
