@@ -36,6 +36,17 @@ const userSchema = new mongoose.Schema(
     },
     achievements: {
       type: achievementsSchema,
+      default: () => ({
+        // Asignamos el valor predeterminado para los logros
+        idiomas: { level: 0 },
+        matematicas: { level: 0 },
+        ciencias: { level: 0 },
+        mundo: { level: 0 },
+        deportes: { level: 0 },
+        vida: { level: 0 },
+        nerd: { level: 0 },
+        artes: { level: 0 },
+      }),
     },
     score: {
       type: Number,
