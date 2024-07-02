@@ -14,7 +14,10 @@ async function create(newUser) {
     newUser.password = encryptedPassword;
     const data = await User.create(newUser);
     await data.save();
-    return data;
+
+    const token = jwt.sign({ email: newUser.email });
+    const { password, ...userWithoutPassword } = newUser;
+    return { userWithoutPassword, token };
   } catch (err) {
     throw new Error(err.message);
   }
