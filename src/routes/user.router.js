@@ -46,7 +46,7 @@ router.get("/:id", async (req, res) => {
 router.put('/decodedate', async (req, res) => {
   const { email, fechaNacimiento } = req.body;
   try {
-    const user = await getUserByEmailAndDate(email, fechaNacimiento);
+    const user = await userUseCase.getUserByEmailAndDate(email, fechaNacimiento);
     res.status(200).json({
       success: true,
       userId: user._id
