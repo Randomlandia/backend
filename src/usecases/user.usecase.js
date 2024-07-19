@@ -1,27 +1,24 @@
 require("dotenv").config();
-const User = require("../models/user.model")
-const encryption = require("../lib/encryption")
-const jwt = require("../lib/jwt")
-const createError = require("http-errors")
-const bcrypt = require("bcryptjs")
+const User = require("../models/user.model");
+const encryption = require("../lib/encryption");
+const jwt = require("../lib/jwt");
+const createError = require("http-errors");
+const bcrypt = require("bcryptjs");
 
-const { SECRET_KEY } = process.env;
+const { JWT_SECRET } = process.env;
 
 //Funcion para encriptar fecha de nacimiento
-function encryptDate(date) {
-  const token = jwt.sign({ date }, SECRET_KEY);
-  return token;
+async function encryptDate(date) {
+  const salt = await bcrypt.genSalt(10);
+  const hashedDate = await bcrypt.hash(date, salt);
+  return hashedDate;
 }
 
-//Funcion para desencriptar fecha de nacimiento
+//Funcion para comparar fecha de nacimiento
 
-function decryptDate(token) {
-  try {
-    const decoded = jwt.verify(token, SECRET_KEY);
-    return decoded.date;
-  } catch (error) {
-    throw new Error('Invalid token');
-  }
+async function verifyDate(inputDate, hashedDate) {
+  const isMatch = await bcrypt.compare(inputDate, hashedDate);
+  return isMatch;
 }
 
 //create user ♥ listo
@@ -33,13 +30,13 @@ async function create(newUser) {
     }
     const encryptedPassword = await bcrypt.hash(newUser.password, 10);
     const birthdate = new Date(newUser.fechaNacimiento).toISOString();
-    const encryptedBirthDate = encryptDate(birthdate);
+    const encryptedBirthDate = await encryptDate(birthdate);
     newUser.password = encryptedPassword;
     newUser.fechaNacimiento = encryptedBirthDate;
     const data = await User.create(newUser);
     await data.save();
 
-    const token = jwt.sign({ email: newUser.email }, SECRET_KEY);
+    const token = jwt.sign({ email: newUser.email }, JWT_SECRET);
     const { password, ...userWithoutPassword } = newUser;
     return { userWithoutPassword, token };
   } catch (err) {
@@ -49,82 +46,82 @@ async function create(newUser) {
 
 //get all ♥ listo
 function getAll() {
-  const users = User.find()
+  const users = User.find();
   if (!users) {
-    throw createError(404, "no users found")
+    throw createError(404, "no users found");
   }
-  return users
+  return users;
 }
 
 //getById ♥ listo
 async function getById(id) {
   try {
     const user = await User.findById(id)
-    .populate({
-      path: "sandiasFavoritas",
-      populate: { path: "topic" }
-    })
-    .populate({
-      path: "sandiasVistas",
-      populate: { path: "topic" }
-    })
-    .populate("achievements")
+      .populate({
+        path: "sandiasFavoritas",
+        populate: { path: "topic" }
+      })
+      .populate({
+        path: "sandiasVistas",
+        populate: { path: "topic" }
+      })
+      .populate("achievements");
 
     if (!user) {
-      throw createError(404, "User not found")
+      throw createError(404, "User not found");
     }
-    return user
+    return user;
   } catch (error) {
-    throw new Error(error.message)
+    throw new Error(error.message);
   }
 }
 
 //borrar ♥ listo
 async function deleteById(id) {
-  const user = await User.findByIdAndDelete(id)
+  const user = await User.findByIdAndDelete(id);
 
   if (!user) {
-    throw createError(404, "delete error: no user found")
+    throw createError(404, "delete error: no user found");
   }
 
-  console.log(`deleted user sucesfully:`, user) //refactor with http errors
-  return user
+  console.log(`deleted user sucesfully:`, user); //refactor with http errors
+  return user;
 }
 
 //update ♥ listo
 async function update(id, updates) {
   if (updates.password) {
-    updates.password = await User.encryptPassword(updates.password)
+    updates.password = await User.encryptPassword(updates.password);
   }
 
-  const user = await User.findByIdAndUpdate(id, updates, { new: true })
+  const user = await User.findByIdAndUpdate(id, updates, { new: true });
 
   if (!user) {
-    throw createError(404, `Update error: sandia not found`)
+    throw createError(404, `Update error: sandia not found`);
   }
-  console.log("Updated user successfully:", user) //refactor with http errors
-  return user
+  console.log("Updated user successfully:", user); //refactor with http errors
+  return user;
 }
 
 //login ♥ listo
 
 async function login(email, password) {
-  const user = await User.findOne({ email })
+  const user = await User.findOne({ email });
 
   if (!user) {
-    throw createError(401, "invalid credentials")
+    throw createError(401, "invalid credentials");
   }
 
-  const isPasswordVerified = encryption.compare(password, user.password)
+  const isPasswordVerified = encryption.compare(password, user.password);
 
   if (!isPasswordVerified) {
-    throw createError(401, "invalid credentials")
+    throw createError(401, "invalid credentials");
   }
 
-  const token = jwt.sign({ user: user._id, email: user.email })
-  const userLoginData = { token, userID: user._id }
+  const token = jwt.sign({ user: user._id, email: user.email });
+  const userLoginData = { token, userID: user._id };
 
-  return userLoginData
+  return userLoginData;
 }
 
 async function getUserByEmailAndDate(email, inputDate) {
@@ -134,10 +131,10 @@ async function getUserByEmailAndDate(email, inputDate) {
       throw new Error("User not found");
     }
 
-    const decryptedBirthDate = decryptDate(user.fechaNacimiento);
+    const birthdate = new Date(inputDate).toISOString();
+    const isMatch = await verifyDate(birthdate, user.fechaNacimiento);
 
-    if (decryptedBirthDate === new Date(inputDate).toISOString()) {
-      console.log("Las fechas coinciden");
+    if (isMatch) {
       return { userId: user._id };
     } else {
       console.log("Las fechas no coinciden");
@@ -150,4 +147,14 @@ async function getUserByEmailAndDate(email, inputDate) {
 }
 
 //CRUD - Create Read Update Delete
-module.exports = { create, getAll, getById, deleteById, update, login, getUserByEmailAndDate }
+module.exports = {
+  create,
+  getAll,
+  getById,
+  deleteById,
+  update,
+  login,
+  getUserByEmailAndDate,
+  encryptDate,
+  verifyDate
+};

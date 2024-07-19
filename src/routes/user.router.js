@@ -49,7 +49,8 @@ router.put('/decodedate', async (req, res) => {
     const user = await userUseCase.getUserByEmailAndDate(email, fechaNacimiento);
     res.status(200).json({
       success: true,
-      userId: user._id
+      message: "User authentication successful.",
+      data: {user: user.userId}
     });
   } catch (error) {
     res.status(400).json({
