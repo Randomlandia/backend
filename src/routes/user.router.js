@@ -41,6 +41,24 @@ router.get("/:id", async (req, res) => {
   }
 });
 
+
+//actualizacion de password con email y fecha
+router.put('/decodedate', async (req, res) => {
+  const { email, fechaNacimiento } = req.body;
+  try {
+    const user = await getUserByEmailAndDate(email, fechaNacimiento);
+    res.status(200).json({
+      success: true,
+      userId: user._id
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
 // router.get("/email", async (req, res) => {
 //   const { email } = req.query;
 //   try {

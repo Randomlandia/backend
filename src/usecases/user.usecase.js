@@ -1,25 +1,49 @@
+require("dotenv").config();
 const User = require("../models/user.model")
 const encryption = require("../lib/encryption")
 const jwt = require("../lib/jwt")
 const createError = require("http-errors")
+const bcrypt = require("bcryptjs")
+
+const { SECRET_KEY } = process.env;
+
+//Funcion para encriptar fecha de nacimiento
+function encryptDate(date) {
+  const token = jwt.sign({ date }, SECRET_KEY);
+  return token;
+}
+
+//Funcion para desencriptar fecha de nacimiento
+
+function decryptDate(token) {
+  try {
+    const decoded = jwt.verify(token, SECRET_KEY);
+    return decoded.date;
+  } catch (error) {
+    throw new Error('Invalid token');
+  }
+}
 
 //create user ♥ listo
 async function create(newUser) {
   try {
-    const isDuplicateUser = await User.findOne({ email: newUser.email })
+    const isDuplicateUser = await User.findOne({ email: newUser.email });
     if (isDuplicateUser) {
-      throw new Error("User already exists")
+      throw new Error("User already exists");
     }
-    const encryptedPassword = encryption.hash(newUser.password)
-    newUser.password = encryptedPassword
-    const data = await User.create(newUser)
-    await data.save()
+    const encryptedPassword = await bcrypt.hash(newUser.password, 10);
+    const birthdate = new Date(newUser.fechaNacimiento).toISOString();
+    const encryptedBirthDate = encryptDate(birthdate);
+    newUser.password = encryptedPassword;
+    newUser.fechaNacimiento = encryptedBirthDate;
+    const data = await User.create(newUser);
+    await data.save();
 
-    const token = jwt.sign({ email: newUser.email })
-    const { password, ...userWithoutPassword } = newUser
-    return { userWithoutPassword, token }
+    const token = jwt.sign({ email: newUser.email }, SECRET_KEY);
+    const { password, ...userWithoutPassword } = newUser;
+    return { userWithoutPassword, token };
   } catch (err) {
-    throw new Error(err.message)
+    throw new Error(err.message);
   }
 }
 
@@ -103,16 +127,27 @@ async function login(email, password) {
   return userLoginData
 }
 
-// async function getByEmail(email) {
-//   const user = await User.find(email);
+async function getUserByEmailAndDate(email, inputDate) {
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      throw new Error("User not found");
+    }
 
-//   if (!user) {
-//     throw new Error("User not found");
-//   }
+    const decryptedBirthDate = decryptDate(user.fechaNacimiento);
 
-//   console.log("Found user by email:", user);
-//   return user;
-// }
+    if (decryptedBirthDate === new Date(inputDate).toISOString()) {
+      console.log("Las fechas coinciden");
+      return { userId: user._id };
+    } else {
+      console.log("Las fechas no coinciden");
+      throw new Error("Fechas no coinciden");
+    }
+  } catch (error) {
+    console.error("Error al comparar fechas:", error.message);
+    throw error;
+  }
+}
 
 //CRUD - Create Read Update Delete
-module.exports = { create, getAll, getById, deleteById, update, login }
+module.exports = { create, getAll, getById, deleteById, update, login, getUserByEmailAndDate }
