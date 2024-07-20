@@ -56,7 +56,14 @@ const userSchema = new mongoose.Schema(
       type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Sandia" }],
       default: [],
     },
-
+    fechaNacimiento: {
+      type: String,
+      required: true,
+    },
+    sandiasTesteadas: {
+      type: [Number],
+      default: [],
+    },
     //TODO: encriptado de contraseña
   },
   {
