@@ -59,11 +59,11 @@ async function getById(id) {
     const user = await User.findById(id)
       .populate({
         path: "sandiasFavoritas",
-        populate: { path: "topic" }
+        populate: { path: "topic" },
       })
       .populate({
         path: "sandiasVistas",
-        populate: { path: "topic" }
+        populate: { path: "topic" },
       })
       .populate("achievements");
 
@@ -146,6 +146,19 @@ async function getUserByEmailAndDate(email, inputDate) {
   }
 }
 
+// New function: getUserByEmail
+async function getByEmail(email) {
+  try {
+    const user = await User.findOne({ email }).select("-password");
+    if (!user) {
+      throw createError(404, "User not found");
+    }
+    return user;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+}
+
 //CRUD - Create Read Update Delete
 module.exports = {
   create,
@@ -156,5 +169,6 @@ module.exports = {
   login,
   getUserByEmailAndDate,
   encryptDate,
-  verifyDate
+  verifyDate,
+  getByEmail,
 };
