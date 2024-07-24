@@ -121,6 +121,7 @@ router.post("/email", async (req, res) => {
 });
 
 
+
 router.post("/", async (req, res) => {
   try {
     const newUser = await userUseCase.create(req.body);

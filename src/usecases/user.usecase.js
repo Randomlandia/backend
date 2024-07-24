@@ -1,5 +1,4 @@
 require("dotenv").config();
-require("dotenv").config();
 const User = require("../models/user.model");
 const encryption = require("../lib/encryption");
 const jwt = require("../lib/jwt");
