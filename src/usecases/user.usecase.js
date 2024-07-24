@@ -64,6 +64,7 @@ async function getById(id) {
       .populate({
         path: "sandiasVistas",
         populate: { path: "topic" },
+
       })
       .populate("achievements");
 
@@ -166,6 +167,7 @@ async function getByEmail(email) {
   return user;
   } catch (error) {
     throw new Error(error.message);
+
   }
 }
 

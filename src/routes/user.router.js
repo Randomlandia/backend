@@ -41,6 +41,7 @@ router.get("/:id", async (req, res) => {
   }
 });
 
+
 //actualizacion de password con email y fecha
 router.put("/decodedate", async (req, res) => {
   const { email, fechaNacimiento } = req.body;
@@ -57,6 +58,7 @@ router.put("/decodedate", async (req, res) => {
   } catch (error) {
     res.status(400).json({
       success: false,
+
       message: error.message,
     });
   }
@@ -79,6 +81,7 @@ router.post("/email", async (req, res) => {
     });
   }
 });
+
 
 router.post("/", async (req, res) => {
   try {
