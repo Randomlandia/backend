@@ -43,42 +43,45 @@ router.get("/:id", async (req, res) => {
 
 
 //actualizacion de password con email y fecha
-router.put('/decodedate', async (req, res) => {
+router.put("/decodedate", async (req, res) => {
   const { email, fechaNacimiento } = req.body;
   try {
-    const user = await userUseCase.getUserByEmailAndDate(email, fechaNacimiento);
+    const user = await userUseCase.getUserByEmailAndDate(
+      email,
+      fechaNacimiento
+    );
     res.status(200).json({
       success: true,
       message: "User authentication successful.",
-      data: {user: user.userId}
+      data: { user: user.userId },
     });
   } catch (error) {
     res.status(400).json({
       success: false,
-      message: error.message
+
+      message: error.message,
     });
   }
 });
 
-// router.get("/email", async (req, res) => {
-//   const { email } = req.query;
-//   try {
-//     const user = await userUseCase.getByEmail(email);
-//     res.json({
-//       success: true,
-//       message: "User email found",
-//       data: {
-//         users: user,
-//       },
-//     });
-//   } catch (error) {
-//     res.status(error.status || 500);
-//     res.json({
-//       success: false,
-//       message: error.message,
-//     });
-//   }
-// });
+router.post("/email", async (req, res) => {
+  const { email } = req.body;
+  try {
+    const user = await userUseCase.getByEmail(email);
+    res.json({
+      success: true,
+      message: "User email found",
+      data:user
+    });
+  } catch (error) {
+    res.status(error.status || 500);
+    res.json({
+      success: false,
+      message: error.message,
+    });
+  }
+});
+
 
 router.post("/", async (req, res) => {
   try {
@@ -143,7 +146,7 @@ router.post("/login", async (req, res) => {
     res.status(200).json({
       success: true,
       message: "User successfuly logged in",
-      data: data
+      data: data,
     });
   } catch (error) {
     res.status(400).json({
