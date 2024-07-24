@@ -1,7 +1,25 @@
+require("dotenv").config();
 const User = require("../models/user.model");
 const encryption = require("../lib/encryption");
 const jwt = require("../lib/jwt");
 const createError = require("http-errors");
+const bcrypt = require("bcryptjs");
+
+const { JWT_SECRET } = process.env;
+
+//Funcion para encriptar fecha de nacimiento
+async function encryptDate(date) {
+  const salt = await bcrypt.genSalt(10);
+  const hashedDate = await bcrypt.hash(date, salt);
+  return hashedDate;
+}
+
+//Funcion para comparar fecha de nacimiento
+
+async function verifyDate(inputDate, hashedDate) {
+  const isMatch = await bcrypt.compare(inputDate, hashedDate);
+  return isMatch;
+}
 
 //create user ♥ listo
 async function create(newUser) {
@@ -10,12 +28,15 @@ async function create(newUser) {
     if (isDuplicateUser) {
       throw new Error("User already exists");
     }
-    const encryptedPassword = encryption.hash(newUser.password);
+    const encryptedPassword = await bcrypt.hash(newUser.password, 10);
+    const birthdate = new Date(newUser.fechaNacimiento).toISOString();
+    const encryptedBirthDate = await encryptDate(birthdate);
     newUser.password = encryptedPassword;
+    newUser.fechaNacimiento = encryptedBirthDate;
     const data = await User.create(newUser);
     await data.save();
 
-    const token = jwt.sign({ email: newUser.email });
+    const token = jwt.sign({ email: newUser.email }, JWT_SECRET);
     const { password, ...userWithoutPassword } = newUser;
     return { userWithoutPassword, token };
   } catch (err) {
@@ -34,12 +55,25 @@ function getAll() {
 
 //getById ♥ listo
 async function getById(id) {
-  const user = await User.findById(id);
+  try {
+    const user = await User.findById(id)
+      .populate({
+        path: "sandiasFavoritas",
+        populate: { path: "topic" },
+      })
+      .populate({
+        path: "sandiasVistas",
+        populate: { path: "topic" },
+      })
+      .populate("achievements");
 
-  if (!user) {
-    throw createError(404, "no sandia found");
+    if (!user) {
+      throw createError(404, "User not found");
+    }
+    return user;
+  } catch (error) {
+    throw new Error(error.message);
   }
-  return user;
 }
 
 //borrar ♥ listo
@@ -90,16 +124,61 @@ async function login(email, password) {
   return userLoginData;
 }
 
-// async function getByEmail(email) {
-//   const user = await User.find(email);
+async function getUserByEmailAndDate(email, inputDate) {
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      throw new Error("User not found");
+    }
 
-//   if (!user) {
-//     throw new Error("User not found");
-//   }
+    const birthdate = new Date(inputDate).toISOString();
+    const isMatch = await verifyDate(birthdate, user.fechaNacimiento);
 
-//   console.log("Found user by email:", user);
-//   return user;
-// }
+    if (isMatch) {
+      return { userId: user._id };
+    } else {
+      console.log("Las fechas no coinciden");
+      throw new Error("Fechas no coinciden");
+    }
+  } catch (error) {
+    console.error("Error al comparar fechas:", error.message);
+    throw error;
+  }
+}
+
+// New function: getUserByEmail
+async function getByEmail(email) {
+  try {
+    const user = await User.findOne({ email }).select("-password")
+    .populate({
+      path: "sandiasFavoritas",
+      populate: { path: "topic" },
+    })
+    .populate({
+      path: "sandiasVistas",
+      populate: { path: "topic" },
+    })
+    .populate("achievements");
+
+  if (!user) {
+    throw createError(404, "User not found");
+  }
+  return user;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+}
 
 //CRUD - Create Read Update Delete
-module.exports = { create, getAll, getById, deleteById, update, login };
+module.exports = {
+  create,
+  getAll,
+  getById,
+  deleteById,
+  update,
+  login,
+  getUserByEmailAndDate,
+  encryptDate,
+  verifyDate,
+  getByEmail,
+};
