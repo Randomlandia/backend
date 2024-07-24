@@ -1,4 +1,5 @@
 require("dotenv").config();
+require("dotenv").config();
 const User = require("../models/user.model");
 const encryption = require("../lib/encryption");
 const jwt = require("../lib/jwt");
@@ -64,7 +65,6 @@ async function getById(id) {
       .populate({
         path: "sandiasVistas",
         populate: { path: "topic" },
-
       })
       .populate("achievements");
 
@@ -167,7 +167,6 @@ async function getByEmail(email) {
   return user;
   } catch (error) {
     throw new Error(error.message);
-
   }
 }
 
