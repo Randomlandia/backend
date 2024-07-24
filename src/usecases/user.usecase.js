@@ -149,11 +149,21 @@ async function getUserByEmailAndDate(email, inputDate) {
 // New function: getUserByEmail
 async function getByEmail(email) {
   try {
-    const user = await User.findOne({ email }).select("-password");
-    if (!user) {
-      throw createError(404, "User not found");
-    }
-    return user;
+    const user = await User.findOne({ email }).select("-password")
+    .populate({
+      path: "sandiasFavoritas",
+      populate: { path: "topic" },
+    })
+    .populate({
+      path: "sandiasVistas",
+      populate: { path: "topic" },
+    })
+    .populate("achievements");
+
+  if (!user) {
+    throw createError(404, "User not found");
+  }
+  return user;
   } catch (error) {
     throw new Error(error.message);
   }

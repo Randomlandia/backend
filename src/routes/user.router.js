@@ -69,9 +69,7 @@ router.post("/email", async (req, res) => {
     res.json({
       success: true,
       message: "User email found",
-      data: {
-        users: user,
-      },
+      data:user
     });
   } catch (error) {
     res.status(error.status || 500);
