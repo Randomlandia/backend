@@ -91,15 +91,15 @@ async function deleteById(id) {
 //update ♥ listo
 async function update(id, updates) {
   if (updates.password) {
-    updates.password = await User.encryptPassword(updates.password);
+    updates.password = await bcrypt.hash(updates.password, 10);
   }
 
   const user = await User.findByIdAndUpdate(id, updates, { new: true });
 
   if (!user) {
-    throw createError(404, `Update error: sandia not found`);
+    throw createError(404, `Update error: User not found.`);
   }
-  console.log("Updated user successfully:", user); //refactor with http errors
+  console.log("Updated user successfully:"); //refactor with http errors
   return user;
 }
 
