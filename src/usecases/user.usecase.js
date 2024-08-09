@@ -91,7 +91,7 @@ async function deleteById(id) {
 //update ♥ listo
 async function update(id, updates) {
   if (updates.password) {
-    updates.password = await User.encryptPassword(updates.password);
+    updates.password = await bcrypt.hash(updates.password, 10);
   }
 
   const user = await User.findByIdAndUpdate(id, updates, { new: true });
