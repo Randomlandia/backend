@@ -1,4 +1,4 @@
-const { Resend } = require('resend');
+const { Resend } = require("resend");
 
 async function Email(to, subject, template) {
   const resend = new Resend(process.env.EMAIL_RESEND_API);

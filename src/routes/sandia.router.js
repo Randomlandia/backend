@@ -1,18 +1,18 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const sandiaUseCase = require('../usecases/sandia.usecase');
-const TopicUseCase = require('../usecases/topic.usecase');
+const sandiaUseCase = require("../usecases/sandia.usecase");
+const TopicUseCase = require("../usecases/topic.usecase");
 
-const sandiaMiddleware = require('../middlewares/sandia.middleware');
+const sandiaMiddleware = require("../middlewares/sandia.middleware");
 
 // traer todas ♥ listo
 
-router.get('/', async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const allSandias = await sandiaUseCase.getAll();
     res.json({
       success: true,
-      message: 'All sandias',
+      message: "All sandias",
       data: {
         sandias: allSandias,
       },
@@ -28,7 +28,7 @@ router.get('/', async (req, res) => {
 
 //traer por id ♥ listo ♥
 
-router.get('/:id', async (req, res) => {
+router.get("/:id", async (req, res) => {
   try {
     const sandia = await sandiaUseCase.getById(req.params.id);
 
@@ -49,7 +49,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // borrar ♥ listo ♥
-router.delete('/:id', sandiaMiddleware, async (req, res) => {
+router.delete("/:id", sandiaMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
     const deletedSandia = await sandiaUseCase.deleteById(id);
@@ -71,7 +71,7 @@ router.delete('/:id', sandiaMiddleware, async (req, res) => {
 });
 
 //crear sandia ♥ listo ♥
-router.post('/', sandiaMiddleware, async (req, res) => {
+router.post("/", sandiaMiddleware, async (req, res) => {
   try {
     const newSandia = await sandiaUseCase.create(req.body);
 
@@ -95,7 +95,7 @@ router.post('/', sandiaMiddleware, async (req, res) => {
 });
 
 // modificar por id ♥ listo ♥
-router.put('/:id', sandiaMiddleware, async (req, res) => {
+router.put("/:id", sandiaMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
     const updates = req.body;
@@ -118,7 +118,7 @@ router.put('/:id', sandiaMiddleware, async (req, res) => {
 });
 
 //getSandiasByTopic
-router.get('/topic/:topic', async (req, res) => {
+router.get("/topic/:topic", async (req, res) => {
   try {
     const { topic } = req.params;
     const sandiasByTopic = await sandiaUseCase.getByTopic(topic);
