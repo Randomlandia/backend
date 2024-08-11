@@ -1,14 +1,14 @@
-const express = require("express");
-const userUseCase = require("../usecases/user.usecase");
+const express = require('express');
+const userUseCase = require('../usecases/user.usecase');
 
 const router = express.Router();
 
-router.get("/", async (req, res) => {
+router.get('/', async (req, res) => {
   try {
     const allUsers = await userUseCase.getAll();
     res.json({
       success: true,
-      message: "All users",
+      message: 'All users',
       data: {
         users: allUsers,
       },
@@ -22,12 +22,12 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.get("/:id", async (req, res) => {
+router.get('/:id', async (req, res) => {
   try {
     const user = await userUseCase.getById(req.params.id);
     res.json({
       success: true,
-      message: "user id found",
+      message: 'user id found',
       data: {
         users: user,
       },
@@ -42,7 +42,7 @@ router.get("/:id", async (req, res) => {
 });
 
 //actualizacion de password con email y fecha
-router.put("/decodedate", async (req, res) => {
+router.put('/decodedate', async (req, res) => {
   const { email, fechaNacimiento } = req.body;
   try {
     const user = await userUseCase.getUserByEmailAndDate(
@@ -51,7 +51,7 @@ router.put("/decodedate", async (req, res) => {
     );
     res.status(200).json({
       success: true,
-      message: "User authentication successful.",
+      message: 'User authentication successful.',
       data: { user: user.userId },
     });
   } catch (error) {
@@ -62,14 +62,14 @@ router.put("/decodedate", async (req, res) => {
   }
 });
 
-router.post("/email", async (req, res) => {
+router.post('/email', async (req, res) => {
   const { email } = req.body;
   try {
     const user = await userUseCase.getByEmail(email);
     res.json({
       success: true,
-      message: "User email found",
-      data:user
+      message: 'User email found',
+      data: user,
     });
   } catch (error) {
     res.status(error.status || 500);
@@ -81,7 +81,7 @@ router.post("/email", async (req, res) => {
 });
 
 //actualizacion de password con email y fecha
-router.put("/decodedate", async (req, res) => {
+router.put('/decodedate', async (req, res) => {
   const { email, fechaNacimiento } = req.body;
   try {
     const user = await userUseCase.getUserByEmailAndDate(
@@ -90,7 +90,7 @@ router.put("/decodedate", async (req, res) => {
     );
     res.status(200).json({
       success: true,
-      message: "User authentication successful.",
+      message: 'User authentication successful.',
       data: { user: user.userId },
     });
   } catch (error) {
@@ -102,14 +102,14 @@ router.put("/decodedate", async (req, res) => {
   }
 });
 
-router.post("/email", async (req, res) => {
+router.post('/email', async (req, res) => {
   const { email } = req.body;
   try {
     const user = await userUseCase.getByEmail(email);
     res.json({
       success: true,
-      message: "User email found",
-      data:user
+      message: 'User email found',
+      data: user,
     });
   } catch (error) {
     res.status(error.status || 500);
@@ -120,14 +120,12 @@ router.post("/email", async (req, res) => {
   }
 });
 
-
-
-router.post("/", async (req, res) => {
+router.post('/', async (req, res) => {
   try {
     const newUser = await userUseCase.create(req.body);
     res.status(201).json({
       success: true,
-      message: "User created",
+      message: 'User created',
       data: {
         user: newUser,
       },
@@ -135,17 +133,17 @@ router.post("/", async (req, res) => {
   } catch (error) {
     res.status(400).json({
       success: false,
-      message: error.message || "Internal Server Error",
+      message: error.message || 'Internal Server Error',
     });
   }
 });
 
-router.delete("/:id", async (req, res) => {
+router.delete('/:id', async (req, res) => {
   try {
     const user = await userUseCase.getById(req.params.id);
     res.status(200).json({
       success: true,
-      message: "User deleted",
+      message: 'User deleted',
       data: {
         user: user,
       },
@@ -153,19 +151,19 @@ router.delete("/:id", async (req, res) => {
   } catch (error) {
     res.status(400).json({
       success: false,
-      message: error.message || "Internal Server Error",
+      message: error.message || 'Internal Server Error',
     });
   }
 });
 
-router.put("/:id", async (req, res) => {
+router.put('/:id', async (req, res) => {
   try {
     const userID = req.params.id;
     const updates = req.body;
     const user = await userUseCase.update(userID, updates);
     res.status(200).json({
       success: true,
-      message: "User update",
+      message: 'User update',
       data: {
         user: user,
       },
@@ -173,24 +171,48 @@ router.put("/:id", async (req, res) => {
   } catch (error) {
     res.status(400).json({
       success: false,
-      message: error.message || "Internal Server Error",
+      message: error.message || 'Internal Server Error',
     });
   }
 });
 
-router.post("/login", async (req, res) => {
+router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
     const data = await userUseCase.login(email, password);
     res.status(200).json({
       success: true,
-      message: "User successfuly logged in",
+      message: 'User successfuly logged in',
       data: data,
     });
   } catch (error) {
     res.status(400).json({
       success: false,
-      message: error.message || "Incorrect email or password",
+      message: error.message || 'Incorrect email or password',
+    });
+  }
+});
+
+router.get('/verify-email/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    console.log('Verify', id);
+    const validate = await userUseCase.verifyEmail(id);
+
+    if (!validate)
+      return res.status(200).json({
+        success: false,
+        message: 'User doesnt validate email',
+      });
+
+    res.status(200).json({
+      success: true,
+      message: 'User does validate email',
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: error.message || 'Incorrect email or password',
     });
   }
 });
