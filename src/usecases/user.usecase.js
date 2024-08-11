@@ -1,4 +1,10 @@
 require("dotenv").config();
+
+//Email verification
+const templateHtml = require("../lib/email/templates/validate-email.template.js");
+const generateAccessToken = require("../lib/email/jsonwebtoken.js");
+const Email = require("../lib/email/sendEmail.js");
+
 const User = require("../models/user.model");
 const encryption = require("../lib/encryption");
 const jwt = require("../lib/jwt");
@@ -34,6 +40,22 @@ async function create(newUser) {
     newUser.password = encryptedPassword;
     newUser.fechaNacimiento = encryptedBirthDate;
     const data = await User.create(newUser);
+
+    if (data) {
+      console.log("create email");
+      const token = generateAccessToken({ id: data._id }, "5m");
+
+      const link = `${process.env.URL_EMAIL}/${token}`;
+
+      const r = await Email(
+        [data.email],
+        "Empieza por aquí...",
+        templateHtml(link)
+      );
+
+      if (r) console.log("Valida send Email");
+    }
+
     await data.save();
 
     const token = jwt.sign({ email: newUser.email }, JWT_SECRET);
@@ -149,24 +171,51 @@ async function getUserByEmailAndDate(email, inputDate) {
 // New function: getUserByEmail
 async function getByEmail(email) {
   try {
-    const user = await User.findOne({ email }).select("-password")
-    .populate({
-      path: "sandiasFavoritas",
-      populate: { path: "topic" },
-    })
-    .populate({
-      path: "sandiasVistas",
-      populate: { path: "topic" },
-    })
-    .populate("achievements");
+    const user = await User.findOne({ email })
+      .select("-password")
+      .populate({
+        path: "sandiasFavoritas",
+        populate: { path: "topic" },
+      })
+      .populate({
+        path: "sandiasVistas",
+        populate: { path: "topic" },
+      })
+      .populate("achievements");
 
-  if (!user) {
-    throw createError(404, "User not found");
-  }
-  return user;
+    if (!user) {
+      throw createError(404, "User not found");
+    }
+    return user;
   } catch (error) {
     throw new Error(error.message);
   }
+}
+
+async function sendEmail(idUser) {
+  const userToEmail = await getById(idUser);
+
+  /* Verificar en modelo si está validado
+  if (userToEmail.emailVerified)
+    throw new createError(400, 'El correo ya está validado')*/
+
+  const token = generateAccessToken({ idUser }, "5m");
+
+  const link = `${process.env.URL_EMAIL}/${token}`;
+
+  const email = await Email(
+    [userToEmail.email],
+    "Empieza por aquí...",
+    templateHtml(link)
+  );
+
+  return email;
+}
+
+async function verifyEmail(id) {
+  const user = await getById(id);
+
+  return user.emailVerified;
 }
 
 //CRUD - Create Read Update Delete
@@ -181,4 +230,6 @@ module.exports = {
   encryptDate,
   verifyDate,
   getByEmail,
+  sendEmail,
+  verifyEmail,
 };

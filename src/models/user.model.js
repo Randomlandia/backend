@@ -64,6 +64,10 @@ const userSchema = new mongoose.Schema(
       type: [Number],
       default: [],
     },
+    emailVerified: {
+      type: Boolean,
+      default: false,
+    },
     //TODO: encriptado de contraseña
   },
   {
