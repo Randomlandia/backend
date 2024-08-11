@@ -1,9 +1,12 @@
 const express = require("express");
 const userUseCase = require("../usecases/user.usecase");
 
+const userMiddleware = require("../middlewares/user.middleware");
+const adminMiddleware = require("../middlewares/sandia.middleware");
+
 const router = express.Router();
 
-router.get("/", async (req, res) => {
+router.get("/", adminMiddleware, async (req, res) => {
   try {
     const allUsers = await userUseCase.getAll();
     res.json({
@@ -22,9 +25,9 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.get("/:id", async (req, res) => {
+router.get("/:id", userMiddleware, async (req, res) => {
   try {
-    const user = await userUseCase.getById(req.params.id);
+    const user = await userUseCase.getById(req.user.user);
     res.json({
       success: true,
       message: "user id found",
@@ -81,7 +84,7 @@ router.post("/email", async (req, res) => {
 });
 
 //actualizacion de password con email y fecha
-router.put("/decodedate", async (req, res) => {
+router.put("/decodedate", userMiddleware, async (req, res) => {
   const { email, fechaNacimiento } = req.body;
   try {
     const user = await userUseCase.getUserByEmailAndDate(
@@ -156,7 +159,7 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
-router.put("/:id", async (req, res) => {
+router.put("/:id", userMiddleware, async (req, res) => {
   try {
     const userID = req.params.id;
     const updates = req.body;
