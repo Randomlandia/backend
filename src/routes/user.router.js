@@ -69,7 +69,47 @@ router.post("/email", async (req, res) => {
     res.json({
       success: true,
       message: "User email found",
-      data:user
+      data: user,
+    });
+  } catch (error) {
+    res.status(error.status || 500);
+    res.json({
+      success: false,
+      message: error.message,
+    });
+  }
+});
+
+//actualizacion de password con email y fecha
+router.put("/decodedate", async (req, res) => {
+  const { email, fechaNacimiento } = req.body;
+  try {
+    const user = await userUseCase.getUserByEmailAndDate(
+      email,
+      fechaNacimiento
+    );
+    res.status(200).json({
+      success: true,
+      message: "User authentication successful.",
+      data: { user: user.userId },
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+
+      message: error.message,
+    });
+  }
+});
+
+router.post("/email", async (req, res) => {
+  const { email } = req.body;
+  try {
+    const user = await userUseCase.getByEmail(email);
+    res.json({
+      success: true,
+      message: "User email found",
+      data: user,
     });
   } catch (error) {
     res.status(error.status || 500);
@@ -186,6 +226,30 @@ router.post("/login", async (req, res) => {
       success: true,
       message: "User successfuly logged in",
       data: data,
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: error.message || "Incorrect email or password",
+    });
+  }
+});
+
+router.get("/verify-email/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    console.log("Verify", id);
+    const validate = await userUseCase.verifyEmail(id);
+
+    if (!validate)
+      return res.status(200).json({
+        success: false,
+        message: "User doesnt validate email",
+      });
+
+    res.status(200).json({
+      success: true,
+      message: "User does validate email",
     });
   } catch (error) {
     res.status(400).json({

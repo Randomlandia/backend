@@ -3,6 +3,8 @@ const router = express.Router();
 const sandiaUseCase = require("../usecases/sandia.usecase");
 const TopicUseCase = require("../usecases/topic.usecase");
 
+const sandiaMiddleware = require("../middlewares/sandia.middleware");
+
 // traer todas ♥ listo
 
 router.get("/", async (req, res) => {
@@ -47,7 +49,7 @@ router.get("/:id", async (req, res) => {
 });
 
 // borrar ♥ listo ♥
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", sandiaMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
     const deletedSandia = await sandiaUseCase.deleteById(id);
@@ -69,7 +71,7 @@ router.delete("/:id", async (req, res) => {
 });
 
 //crear sandia ♥ listo ♥
-router.post("/", async (req, res) => {
+router.post("/", sandiaMiddleware, async (req, res) => {
   try {
     const newSandia = await sandiaUseCase.create(req.body);
 
@@ -93,7 +95,7 @@ router.post("/", async (req, res) => {
 });
 
 // modificar por id ♥ listo ♥
-router.put("/:id", async (req, res) => {
+router.put("/:id", sandiaMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
     const updates = req.body;
