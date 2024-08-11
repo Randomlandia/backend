@@ -83,28 +83,6 @@ router.post("/email", async (req, res) => {
   }
 });
 
-//actualizacion de password con email y fecha
-router.put("/decodedate", userMiddleware, async (req, res) => {
-  const { email, fechaNacimiento } = req.body;
-  try {
-    const user = await userUseCase.getUserByEmailAndDate(
-      email,
-      fechaNacimiento
-    );
-    res.status(200).json({
-      success: true,
-      message: "User authentication successful.",
-      data: { user: user.userId },
-    });
-  } catch (error) {
-    res.status(400).json({
-      success: false,
-
-      message: error.message,
-    });
-  }
-});
-
 router.post("/email", async (req, res) => {
   const { email } = req.body;
   try {
