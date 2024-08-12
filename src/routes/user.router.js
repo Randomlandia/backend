@@ -1,6 +1,9 @@
 const express = require("express");
 const userUseCase = require("../usecases/user.usecase");
 
+const emailMiddleware = require("../middlewares/email.middleware");
+const userMiddleware = require("../middlewares/user.middleware");
+
 const router = express.Router();
 
 router.get("/", async (req, res) => {
@@ -149,7 +152,7 @@ router.post("/email", async (req, res) => {
     res.json({
       success: true,
       message: "User email found",
-      data:user
+      data: user,
     });
   } catch (error) {
     res.status(error.status || 500);
@@ -159,8 +162,6 @@ router.post("/email", async (req, res) => {
     });
   }
 });
-
-
 
 router.post("/", async (req, res) => {
   try {
@@ -239,9 +240,9 @@ router.get("/verify-email/:id", async (req, res) => {
   try {
     const { id } = req.params;
     console.log("Verify", id);
-    const validate = await userUseCase.verifyEmail(id);
+    const isvalid = await userUseCase.checkEmail(id);
 
-    if (!validate)
+    if (!isvalid)
       return res.status(200).json({
         success: false,
         message: "User doesnt validate email",
@@ -255,6 +256,42 @@ router.get("/verify-email/:id", async (req, res) => {
     res.status(400).json({
       success: false,
       message: error.message || "Incorrect email or password",
+    });
+  }
+});
+
+///users/validate-email
+router.post("/email/validate-email", emailMiddleware, async (req, res) => {
+  try {
+    const { id } = req;
+    const validate = await userUseCase.verifyEmail(id);
+
+    res.status(200).json({
+      success: true,
+      message: "Validate successfull",
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: error.message || "Incorrect email or password",
+    });
+  }
+});
+
+router.post("/email/resend", userMiddleware, async (req, res) => {
+  try {
+    const { user } = req.user;
+
+    const resend = await userUseCase.resendEmail(user);
+
+    res.status(200).json({
+      success: true,
+      message: "Resend successfull",
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: error.message || "Resend failure",
     });
   }
 });
