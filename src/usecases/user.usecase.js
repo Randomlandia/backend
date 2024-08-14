@@ -212,10 +212,34 @@ async function sendEmail(idUser) {
   return email;
 }
 
-async function verifyEmail(id) {
+async function checkEmail(id) {
   const user = await getById(id);
 
   return user.emailVerified;
+}
+
+async function verifyEmail(id) {
+  const isVerified = await checkEmail(id);
+
+  if (isVerified) throw new Error("Ya está validado el correo");
+
+  const validate = await update(id, { emailVerified: true });
+
+  if (!validate) throw new Error("Tuvimos un error en la validación");
+
+  return true;
+}
+
+async function resendEmail(id) {
+  const user = await getById(id);
+
+  if (user.emailVerified) return false;
+
+  const token = generateAccessToken({ id }, "5m");
+
+  const link = `${process.env.URL_EMAIL}/${token}`;
+
+  await Email([user.email], "Empieza por aquí...", templateHtml(link));
 }
 
 //CRUD - Create Read Update Delete
@@ -231,5 +255,7 @@ module.exports = {
   verifyDate,
   getByEmail,
   sendEmail,
+  checkEmail,
   verifyEmail,
+  resendEmail,
 };
