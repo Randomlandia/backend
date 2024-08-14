@@ -7,6 +7,7 @@ function templateHtml(magicLink) {
     <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
     <meta name="x-apple-disable-message-reformatting" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
+
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Rammetto+One&family=Libre+Baskerville:wght@700&display=swap" rel="stylesheet">
   </head>
@@ -45,6 +46,7 @@ function templateHtml(magicLink) {
               Muy atentamente,
             </p>
             <img src="https://media.tenor.com/GLZZKZJyJAEAAAAd/dance-dancing-duck.gif" alt="Dancing Duck" style="display:block;margin: 0 auto;outline:none;border:none;text-decoration:none;width:150px;height:auto;" />
+
           </td>
         </tr>
       </tbody>

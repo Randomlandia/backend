@@ -212,6 +212,7 @@ async function sendEmail(idUser) {
   return email;
 }
 
+
 async function checkEmail(id) {
   const user = await getById(id);
 
