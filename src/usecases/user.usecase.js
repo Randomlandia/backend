@@ -212,7 +212,6 @@ async function sendEmail(idUser) {
   return email;
 }
 
-
 async function checkEmail(id) {
   const user = await getById(id);
 
@@ -243,6 +242,22 @@ async function resendEmail(id) {
   await Email([user.email], "Empieza por aquí...", templateHtml(link));
 }
 
+async function ranking() {
+  const users = await getAll();
+
+  const arr = users.reduce((accum, { score, name }) => {
+    if (score > 0 /*&& accum.length < 3*/) {
+      const handler = name ?? "Anónimo";
+
+      accum.push({ score, name: handler });
+    }
+
+    return accum;
+  }, []);
+
+  return arr.sort((a, b) => b["score"] - a["score"]);
+}
+
 //CRUD - Create Read Update Delete
 module.exports = {
   create,
@@ -259,4 +274,5 @@ module.exports = {
   checkEmail,
   verifyEmail,
   resendEmail,
+  ranking,
 };
