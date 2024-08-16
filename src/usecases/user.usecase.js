@@ -13,6 +13,9 @@ const bcrypt = require("bcryptjs");
 
 const { JWT_SECRET } = process.env;
 
+const NodeCache = require("node-cache");
+const rankCache = new NodeCache({ stdTTL: 10 });
+
 //Funcion para encriptar fecha de nacimiento
 async function encryptDate(date) {
   const salt = await bcrypt.genSalt(10);
@@ -243,19 +246,27 @@ async function resendEmail(id) {
 }
 
 async function ranking() {
-  const users = await getAll();
+  if (rankCache.has("ranking")) {
+    return rankCache.get("ranking");
+  } else {
+    const users = await getAll();
 
-  const arr = users.reduce((accum, { score, name }) => {
-    if (score > 0 /*&& accum.length < 3*/) {
-      const handler = name ?? "Anónimo";
+    const arr = users.reduce((accum, { score, name, avatar }) => {
+      if (score > 0 && accum.length < 10) {
+        const handler = name ?? "Anónimo";
 
-      accum.push({ score, name: handler });
-    }
+        accum.push({ score, name: handler, avatar });
+      }
 
-    return accum;
-  }, []);
+      return accum;
+    }, []);
 
-  return arr.sort((a, b) => b["score"] - a["score"]);
+    const rank = arr.sort((a, b) => b["score"] - a["score"]);
+
+    rankCache.set("ranking", rank);
+
+    return rank;
+  }
 }
 
 //CRUD - Create Read Update Delete
