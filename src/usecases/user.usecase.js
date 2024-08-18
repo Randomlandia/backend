@@ -13,6 +13,9 @@ const bcrypt = require("bcryptjs");
 
 const { JWT_SECRET } = process.env;
 
+const NodeCache = require("node-cache");
+const rankCache = new NodeCache({ stdTTL: 10 });
+
 //Funcion para encriptar fecha de nacimiento
 async function encryptDate(date) {
   const salt = await bcrypt.genSalt(10);
@@ -212,7 +215,6 @@ async function sendEmail(idUser) {
   return email;
 }
 
-
 async function checkEmail(id) {
   const user = await getById(id);
 
@@ -243,6 +245,30 @@ async function resendEmail(id) {
   await Email([user.email], "Empieza por aquí...", templateHtml(link));
 }
 
+async function ranking() {
+  if (rankCache.has("ranking")) {
+    return rankCache.get("ranking");
+  } else {
+    const users = await getAll();
+
+    const arr = users.reduce((accum, { score, name, avatar }) => {
+      if (score > 0 && accum.length < 10) {
+        const handler = name ?? "Anónimo";
+
+        accum.push({ score, name: handler, avatar });
+      }
+
+      return accum;
+    }, []);
+
+    const rank = arr.sort((a, b) => b["score"] - a["score"]);
+
+    rankCache.set("ranking", rank);
+
+    return rank;
+  }
+}
+
 //CRUD - Create Read Update Delete
 module.exports = {
   create,
@@ -259,4 +285,5 @@ module.exports = {
   checkEmail,
   verifyEmail,
   resendEmail,
+  ranking,
 };
