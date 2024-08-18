@@ -94,6 +94,29 @@ router.post("/", sandiaMiddleware, async (req, res) => {
   }
 });
 
+router.post("/many", express.text(), sandiaMiddleware, async (req, res) => {
+  try {
+    const arr = req.body;
+    const sandiasFile = JSON.parse(arr);
+
+    if (!arr || !Array.isArray(sandiasFile))
+      throw new createError(400, "Datos indefinidos");
+
+    await sandiaUseCase.createMany(sandiasFile);
+
+    res.json({
+      success: true,
+      message: `Sandias creates successful`,
+    });
+  } catch (error) {
+    res.status(error.status || 500);
+    res.json({
+      success: false,
+      message: error.message || "Error in file",
+    });
+  }
+});
+
 // modificar por id ♥ listo ♥
 router.put("/:id", sandiaMiddleware, async (req, res) => {
   try {
