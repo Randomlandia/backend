@@ -83,7 +83,6 @@ router.post("/email", async (req, res) => {
   }
 });
 
-
 router.post("/", async (req, res) => {
   try {
     const newUser = await userUseCase.create(req.body);
@@ -165,7 +164,6 @@ router.get("/verify-email/:id", async (req, res) => {
     const isvalid = await userUseCase.checkEmail(id);
 
     if (!isvalid)
-
       return res.status(200).json({
         success: false,
         message: "User doesnt validate email",
@@ -182,7 +180,6 @@ router.get("/verify-email/:id", async (req, res) => {
     });
   }
 });
-
 
 ///users/validate-email
 router.post("/email/validate-email", emailMiddleware, async (req, res) => {
@@ -220,6 +217,21 @@ router.post("/email/resend", userMiddleware, async (req, res) => {
   }
 });
 
+router.get("/top/ranking", async (req, res) => {
+  try {
+    const ranking = await userUseCase.ranking();
+
+    res.status(200).json({
+      success: true,
+      ranking,
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: error.message || "Resend failure",
+    });
+  }
+});
 
 // router.post("/login", async (req, res) => {
 //   try {

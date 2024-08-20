@@ -78,6 +78,20 @@ async function create({
   return newSandia;
 }
 
+async function createMany(data) {
+  const newSandias = await await Promise.all(
+    data.map(async (sandia) => {
+      const newSandia = await create(sandia);
+
+      if (!newSandia) throw new Error("Error al crear una sandia");
+
+      return newSandia;
+    })
+  );
+
+  return newSandias;
+}
+
 // update ♥ listo ♥
 function update(id, updates) {
   const updatedSandia = Sandia.findByIdAndUpdate(id, updates, {
@@ -103,4 +117,12 @@ async function getByTopic(topic) {
   return sandias;
 }
 
-module.exports = { getAll, create, getById, deleteById, update, getByTopic };
+module.exports = {
+  getAll,
+  create,
+  createMany,
+  getById,
+  deleteById,
+  update,
+  getByTopic,
+};
