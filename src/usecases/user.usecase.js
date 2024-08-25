@@ -1,20 +1,17 @@
-require("dotenv").config();
+require('dotenv').config();
 
 //Email verification
-const templateHtml = require("../lib/email/templates/validate-email.template.js");
-const generateAccessToken = require("../lib/email/jsonwebtoken.js");
-const Email = require("../lib/email/sendEmail.js");
+const templateHtml = require('../lib/email/templates/validate-email.template.js');
+const generateAccessToken = require('../lib/email/jsonwebtoken.js');
+const Email = require('../lib/email/sendEmail.js');
 
-const User = require("../models/user.model");
-const encryption = require("../lib/encryption");
-const jwt = require("../lib/jwt");
-const createError = require("http-errors");
-const bcrypt = require("bcryptjs");
+const User = require('../models/user.model');
+const encryption = require('../lib/encryption');
+const jwt = require('../lib/jwt');
+const createError = require('http-errors');
+const bcrypt = require('bcryptjs');
 
 const { JWT_SECRET } = process.env;
-
-const NodeCache = require("node-cache");
-const rankCache = new NodeCache({ stdTTL: 10 });
 
 //Funcion para encriptar fecha de nacimiento
 async function encryptDate(date) {
@@ -35,7 +32,7 @@ async function create(newUser) {
   try {
     const isDuplicateUser = await User.findOne({ email: newUser.email });
     if (isDuplicateUser) {
-      throw new Error("User already exists");
+      throw new Error('User already exists');
     }
     const encryptedPassword = await bcrypt.hash(newUser.password, 10);
     const birthdate = new Date(newUser.fechaNacimiento).toISOString();
@@ -45,18 +42,18 @@ async function create(newUser) {
     const data = await User.create(newUser);
 
     if (data) {
-      console.log("create email");
-      const token = generateAccessToken({ id: data._id }, "5m");
+      console.log('create email');
+      const token = generateAccessToken({ id: data._id }, '5m');
 
       const link = `${process.env.URL_EMAIL}/${token}`;
 
       const r = await Email(
         [data.email],
-        "Empieza por aquí...",
+        'Empieza por aquí...',
         templateHtml(link)
       );
 
-      if (r) console.log("Valida send Email");
+      if (r) console.log('Valida send Email');
     }
 
     await data.save();
@@ -73,7 +70,7 @@ async function create(newUser) {
 function getAll() {
   const users = User.find();
   if (!users) {
-    throw createError(404, "no users found");
+    throw createError(404, 'no users found');
   }
   return users;
 }
@@ -83,17 +80,17 @@ async function getById(id) {
   try {
     const user = await User.findById(id)
       .populate({
-        path: "sandiasFavoritas",
-        populate: { path: "topic" },
+        path: 'sandiasFavoritas',
+        populate: { path: 'topic' },
       })
       .populate({
-        path: "sandiasVistas",
-        populate: { path: "topic" },
+        path: 'sandiasVistas',
+        populate: { path: 'topic' },
       })
-      .populate("achievements");
+      .populate('achievements');
 
     if (!user) {
-      throw createError(404, "User not found");
+      throw createError(404, 'User not found');
     }
     return user;
   } catch (error) {
@@ -106,7 +103,7 @@ async function deleteById(id) {
   const user = await User.findByIdAndDelete(id);
 
   if (!user) {
-    throw createError(404, "delete error: no user found");
+    throw createError(404, 'delete error: no user found');
   }
 
   console.log(`deleted user sucesfully:`, user); //refactor with http errors
@@ -124,7 +121,7 @@ async function update(id, updates) {
   if (!user) {
     throw createError(404, `Update error: User not found.`);
   }
-  console.log("Updated user successfully:"); //refactor with http errors
+  console.log('Updated user successfully:'); //refactor with http errors
   return user;
 }
 
@@ -134,13 +131,13 @@ async function login(email, password) {
   const user = await User.findOne({ email });
 
   if (!user) {
-    throw createError(401, "invalid credentials");
+    throw createError(401, 'invalid credentials');
   }
 
   const isPasswordVerified = encryption.compare(password, user.password);
 
   if (!isPasswordVerified) {
-    throw createError(401, "invalid credentials");
+    throw createError(401, 'invalid credentials');
   }
 
   const token = jwt.sign({ user: user._id, email: user.email });
@@ -153,7 +150,7 @@ async function getUserByEmailAndDate(email, inputDate) {
   try {
     const user = await User.findOne({ email });
     if (!user) {
-      throw new Error("User not found");
+      throw new Error('User not found');
     }
 
     const birthdate = new Date(inputDate).toISOString();
@@ -162,11 +159,11 @@ async function getUserByEmailAndDate(email, inputDate) {
     if (isMatch) {
       return { userId: user._id };
     } else {
-      console.log("Las fechas no coinciden");
-      throw new Error("Fechas no coinciden");
+      console.log('Las fechas no coinciden');
+      throw new Error('Fechas no coinciden');
     }
   } catch (error) {
-    console.error("Error al comparar fechas:", error.message);
+    console.error('Error al comparar fechas:', error.message);
     throw error;
   }
 }
@@ -175,19 +172,19 @@ async function getUserByEmailAndDate(email, inputDate) {
 async function getByEmail(email) {
   try {
     const user = await User.findOne({ email })
-      .select("-password")
+      .select('-password')
       .populate({
-        path: "sandiasFavoritas",
-        populate: { path: "topic" },
+        path: 'sandiasFavoritas',
+        populate: { path: 'topic' },
       })
       .populate({
-        path: "sandiasVistas",
-        populate: { path: "topic" },
+        path: 'sandiasVistas',
+        populate: { path: 'topic' },
       })
-      .populate("achievements");
+      .populate('achievements');
 
     if (!user) {
-      throw createError(404, "User not found");
+      throw createError(404, 'User not found');
     }
     return user;
   } catch (error) {
@@ -202,13 +199,13 @@ async function sendEmail(idUser) {
   if (userToEmail.emailVerified)
     throw new createError(400, 'El correo ya está validado')*/
 
-  const token = generateAccessToken({ idUser }, "5m");
+  const token = generateAccessToken({ idUser }, '5m');
 
   const link = `${process.env.URL_EMAIL}/${token}`;
 
   const email = await Email(
     [userToEmail.email],
-    "Empieza por aquí...",
+    'Empieza por aquí...',
     templateHtml(link)
   );
 
@@ -224,11 +221,11 @@ async function checkEmail(id) {
 async function verifyEmail(id) {
   const isVerified = await checkEmail(id);
 
-  if (isVerified) throw new Error("Ya está validado el correo");
+  if (isVerified) throw new Error('Ya está validado el correo');
 
   const validate = await update(id, { emailVerified: true });
 
-  if (!validate) throw new Error("Tuvimos un error en la validación");
+  if (!validate) throw new Error('Tuvimos un error en la validación');
 
   return true;
 }
@@ -238,35 +235,24 @@ async function resendEmail(id) {
 
   if (user.emailVerified) return false;
 
-  const token = generateAccessToken({ id }, "5m");
+  const token = generateAccessToken({ id }, '5m');
 
   const link = `${process.env.URL_EMAIL}/${token}`;
 
-  await Email([user.email], "Empieza por aquí...", templateHtml(link));
+  await Email([user.email], 'Empieza por aquí...', templateHtml(link));
 }
 
 async function ranking() {
-  if (rankCache.has("ranking")) {
-    return rankCache.get("ranking");
-  } else {
-    const users = await getAll();
+  const scores = await User.find(
+    { score: { $gt: 0 } },
+    { score: 1, name: 1, avatar: 1 }
+  )
+    .limit(10)
+    .sort({
+      score: -1,
+    });
 
-    const arr = users.reduce((accum, { score, name, avatar }) => {
-      if (score > 0 && accum.length < 10) {
-        const handler = name ?? "Anónimo";
-
-        accum.push({ score, name: handler, avatar });
-      }
-
-      return accum;
-    }, []);
-
-    const rank = arr.sort((a, b) => b["score"] - a["score"]);
-
-    rankCache.set("ranking", rank);
-
-    return rank;
-  }
+  return scores;
 }
 
 //CRUD - Create Read Update Delete
