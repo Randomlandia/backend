@@ -6,7 +6,10 @@ const createError = require("http-errors");
 
 // traer todas ♥ listo ♥
 async function getAll() {
-  const sandias = await Sandia.find().populate("topic");
+  const sandias = await Sandia.find().populate({
+    path: 'topic',
+    select: '_id name',
+  });
   if (!sandias) {
     throw createError(404, "no sandias found");
   }
